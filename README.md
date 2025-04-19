@@ -1,2 +1,2 @@
 # zarazum.github.io
-Pavel Gertman GitHub Pages
+Sources of [my GitHub Pages website](https://zarazum.github.io).
