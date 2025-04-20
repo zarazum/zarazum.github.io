@@ -1,6 +1,6 @@
 ---
 layout: default
-title: "Павел Гертман, портфолио"
+title: "Портфолио"
 permalink: /
 author: "Павел Гертман"
 description: "Интересы и достижения"
