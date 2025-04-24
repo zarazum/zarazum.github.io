@@ -1,0 +1,162 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sawtooth Wave with Logarithmic Low-Pass Filter</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            text-align: center;
+        }
+        h1 {
+            font-size: 1.5em;
+        }
+        div {
+            margin: 20px 0;
+        }
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+        input[type="range"] {
+            width: 100%;
+            max-width: 400px;
+            height: 20px;
+            margin: 10px auto;
+            -webkit-appearance: none;
+            appearance: none;
+            background: #ddd;
+            border-radius: 10px;
+            outline: none;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 30px;
+            height: 30px;
+            background: #007BFF;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        input[type="range"]::-moz-range-thumb {
+            width: 30px;
+            height: 30px;
+            background: #007BFF;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        span {
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+        button {
+            font-size: 1.2em;
+            padding: 10px 20px;
+            margin: 5px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #playButton.stop {
+            background-color: #dc3545;
+        }
+        #playButton.stop:hover {
+            background-color: #a71d2a;
+        }
+    </style>
+</head>
+<body>
+    <h1>Playing Sawtooth Wave at 55 Hz with Low-Pass Filter</h1>
+    <button id="playButton">Play Sound</button>
+    <div>
+        <label for="frequency">Filter Frequency (Hz): </label>
+        <input type="range" id="frequency" min="0" max="1" step="0.001" value="0.5">
+        <span id="frequencyValue">200</span>
+    </div>
+    <div>
+        <label for="qFactor">Resonance (Q Factor): </label>
+        <input type="range" id="qFactor" min="0.01" max="50" step="0.01" value="1">
+        <span id="qFactorValue">1</span>
+    </div>
+
+    <script>
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        let oscillator = null;
+        let filter = null;
+
+        // Create the oscillator and filter
+        function setupAudio() {
+            if (oscillator) {
+                oscillator.stop();
+                oscillator.disconnect();
+            }
+
+            oscillator = audioContext.createOscillator();
+            oscillator.type = 'sawtooth';
+            oscillator.frequency.setValueAtTime(55, audioContext.currentTime); // 55 Hz
+
+            filter = audioContext.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.frequency.value = 200; // Initial frequency
+            filter.Q.value = 1; // Initial Q factor
+
+            oscillator.connect(filter);
+            filter.connect(audioContext.destination);
+            oscillator.start();
+        }
+
+        const playButton = document.getElementById('playButton');
+
+        playButton.addEventListener('click', () => {
+            if (!oscillator) {
+                setupAudio();
+                playButton.textContent = 'Stop Sound';
+                playButton.classList.add('stop');
+            } else {
+                oscillator.stop();
+                oscillator.disconnect();
+                oscillator = null;
+                playButton.textContent = 'Play Sound';
+                playButton.classList.remove('stop');
+            }
+        });
+
+        // Convert linear slider value to logarithmic frequency
+        function logScale(value, minFreq, maxFreq) {
+            return minFreq * Math.pow(maxFreq / minFreq, value);
+        }
+
+        // Update filter frequency in real-time
+        document.getElementById('frequency').addEventListener('input', (event) => {
+            const sliderValue = parseFloat(event.target.value);
+            const minFreq = 20; // Minimum frequency
+            const maxFreq = 22000; // Maximum frequency
+            const frequency = logScale(sliderValue, minFreq, maxFreq);
+
+            document.getElementById('frequencyValue').textContent = Math.round(frequency);
+            if (filter) {
+                filter.frequency.value = frequency;
+            }
+        });
+
+        // Update filter Q factor in real-time
+        document.getElementById('qFactor').addEventListener('input', (event) => {
+            const value = parseFloat(event.target.value);
+            document.getElementById('qFactorValue').textContent = value.toFixed(2);
+            if (filter) {
+                filter.Q.value = value;
+            }
+        });
+    </script>
+</body>
+</html>
+```
