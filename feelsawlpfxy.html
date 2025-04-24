@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sawtooth Wave with XY Pad</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            text-align: left; /* Изменено на выравнивание по левому краю */
+            margin: 0;
+            background-color: #f9f9f9;
+        }
+        h1 {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+        }
+        canvas {
+            display: block;
+            margin: 20px 0; /* Убрано автоцентрирование */
+            border: 2px solid #007BFF;
+            background-color: #f0f0f0;
+            cursor: pointer;
+            max-width: 1000px;
+            width: 90vw;
+            height: calc(90vw / 2);
+            aspect-ratio: 2 / 1;
+        }
+        div {
+            margin-bottom: 20px;
+        }
+        span {
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+        .hint {
+            font-size: 1em;
+            color: #666;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Playing Sawtooth Wave at 55 Hz with Low-Pass Filter</h1>
+    <div>
+        <span>X (Frequency): <span id="frequencyValue">200</span> Hz</span><br>
+        <span>Y (Q Factor): <span id="qFactorValue">1</span></span>
+    </div>
+    <canvas id="xyPad"></canvas>
+    <p class="hint">
+        On mobile browsers, you may need to quickly tap and release the rectangle once to activate sound.
+    </p>
+
+    <script>
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        let oscillator = null, filter = null;
+
+        const xyPad = document.getElementById('xyPad');
+        const ctx = xyPad.getContext('2d');
+        const frequencyOutput = document.getElementById('frequencyValue');
+        const qFactorOutput = document.getElementById('qFactorValue');
+
+        let isDragging = false, lastX, lastY;
+
+        // Default values for frequency and Q
+        const defaultFrequency = 200, defaultQ = 1;
+
+        // Resize canvas dynamically based on viewport size
+        function resizeCanvas() {
+            const maxSize = 1000, viewportWidth = window.innerWidth;
+            const width = Math.min(viewportWidth * 0.9, maxSize), height = width / 2;
+
+            xyPad.width = width;
+            xyPad.height = height;
+
+            if (isDragging) drawMarker(lastX, lastY);
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+
+        // Convert X position to frequency (logarithmic scale)
+        function getXFrequency(x) {
+            const [minFreq, maxFreq] = [20, 22000];
+            return minFreq * Math.pow(maxFreq / minFreq, x / xyPad.width);
+        }
+
+        // Convert Y position to Q value
+        function getYQ(y) {
+            const [minQ, maxQ] = [0.01, 50];
+            return minQ + (maxQ - minQ) * (1 - y / xyPad.height);
+        }
+
+        // Draw a marker on the XY pad
+        function drawMarker(x, y) {
+            ctx.clearRect(0, 0, xyPad.width, xyPad.height);
+            ctx.beginPath();
+            ctx.arc(x, y, 10, 0, Math.PI * 2);
+            ctx.fillStyle = '#007BFF';
+            ctx.fill();
+            ctx.closePath();
+        }
+
+        // Update filter parameters based on XY pad position
+        function updateFilter(x, y) {
+            const frequency = getXFrequency(x), qValue = getYQ(y);
+
+            frequencyOutput.textContent = Math.round(frequency);
+            qFactorOutput.textContent = qValue.toFixed(2);
+
+            if (filter) {
+                filter.frequency.value = frequency;
+                filter.Q.value = qValue;
+            }
+        }
+
+        // Start audio
+        function startAudio() {
+            if (audioContext.state === 'suspended') audioContext.resume();
+
+            if (!oscillator) {
+                oscillator = audioContext.createOscillator();
+                oscillator.type = 'sawtooth';
+                oscillator.frequency.setValueAtTime(55, audioContext.currentTime);
+
+                filter = audioContext.createBiquadFilter();
+                filter.type = 'lowpass';
+                filter.frequency.value = defaultFrequency;
+                filter.Q.value = defaultQ;
+
+                oscillator.connect(filter).connect(audioContext.destination);
+                oscillator.start();
+            }
+        }
+
+        // Stop audio
+        function stopAudio() {
+            if (oscillator) {
+                oscillator.stop();
+                oscillator.disconnect();
+                oscillator = filter = null;
+            }
+        }
+
+        // Handle XY pad interaction
+        function handleXY(event) {
+            const rect = xyPad.getBoundingClientRect();
+            const x = Math.max(0, Math.min(xyPad.width, event.clientX - rect.left));
+            const y = Math.max(0, Math.min(xyPad.height, event.clientY - rect.top));
+
+            lastX = x;
+            lastY = y;
+
+            drawMarker(x, y);
+            updateFilter(x, y);
+        }
+
+        // Event listeners for mouse and touch
+        ['mousedown', 'touchstart'].forEach((event) => {
+            xyPad.addEventListener(event, (e) => {
+                e.preventDefault();
+                isDragging = true;
+                startAudio();
+                handleXY(e.touches ? e.touches[0] : e);
+            });
+        });
+
+        ['mousemove', 'touchmove'].forEach((event) => {
+            xyPad.addEventListener(event, (e) => {
+                e.preventDefault();
+                if (isDragging) handleXY(e.touches ? e.touches[0] : e);
+            });
+        });
+
+        ['mouseup', 'mouseleave', 'touchend'].forEach((event) => {
+            xyPad.addEventListener(event, () => {
+                isDragging = false;
+                stopAudio();
+            });
+        });
+
+        // Initialize canvas size and draw default marker on page load
+        resizeCanvas();
+        [lastX, lastY] = [getXFPosition(defaultFrequency), getYQPosition(defaultQ)];
+        drawMarker(lastX, lastY);
+
+        // Helper functions for initial marker position
+        function getXFPosition(frequency) {
+            const [minFreq, maxFreq] = [20, 22000];
+            return xyPad.width * (Math.log(frequency / minFreq) / Math.log(maxFreq / minFreq));
+        }
+
+        function getYQPosition(q) {
+            const [minQ, maxQ] = [0.01, 50];
+            return xyPad.height * (1 - (q - minQ) / (maxQ - minQ));
+        }
+    </script>
+</body>
+</html>
