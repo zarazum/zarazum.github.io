@@ -29,7 +29,7 @@ description: "Интересы и достижения"
 ## Достижения
 
 - Департамент дизайна ООО «Медиа сервис»
-    - Вырастил 4 дизайнеров, из них 2 — с нуля
+    - Вырастил 4 дизайнеров
     - Сформировал матрицу компетенций
     - Выстроил партнерские отношения с командами разработки и эксплуатации
 - Редизайн ИСОУ «Виртуальная школа» [https://belgorod.vsopen.ru/](https://belgorod.vsopen.ru/)
@@ -50,7 +50,7 @@ description: "Интересы и достижения"
     - Браузер Go! [https://gobro.mail.ru/](https://gobro.mail.ru/) Пока я им занимался, он назывался Amigo.
     - ОК+Firefox [https://firefox-ok.mail.ru/](https://firefox-ok.mail.ru/)
 - ООО «Энтер» — интернет-магазин, мобильные приложения, терминалы самообслуживания в магазинах. В вебархиве кое-что сохранилось.
-    - Вырастил 2 UI/UX дизайнеров c нуля до профи
+    - Вырастил 2 дизайнеров
     - Оптимизировал производство и согласование баннеров
     - Листинг смартфонов [https://web.archive.org/web/20170414064232/http://www.enter.ru/catalog/electronics/telefoni-smartfoni-2348](https://web.archive.org/web/20170414064232/http://www.enter.ru/catalog/electronics/telefoni-smartfoni-2348)
     - Карточка товара [https://web.archive.org/web/20170414083800/http://www.enter.ru/product/electronics/smartfon-apple-iphone-7-256gb-chiernyi-2060302024171#sender%5Bname%5D=filter&sender%5BcategoryUrlPrefix%5D=electronics](https://web.archive.org/web/20170414083800/http://www.enter.ru/product/electronics/smartfon-apple-iphone-7-256gb-chiernyi-2060302024171#sender%5Bname%5D=filter&sender%5BcategoryUrlPrefix%5D=electronics)
