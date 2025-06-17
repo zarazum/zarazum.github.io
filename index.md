@@ -35,7 +35,7 @@ description: "Интересы и достижения"
 </details>
 
 <details>
-<summary>`NDA` PRO.КУЛЬТУРА.РФ [pro.culture.ru](https://pro.culture.ru/)</summary>
+<summary> `NDA` PRO.КУЛЬТУРА.РФ [pro.culture.ru](https://pro.culture.ru/)</summary>
 </details>
 
 <details>
