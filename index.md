@@ -28,7 +28,7 @@ description: "Интересы и достижения"
 </details>
 
 <details>
-<summary>Редизайн ИСОУ «Виртуальная школа» [https://belgorod.vsopen.ru/](https://belgorod.vsopen.ru/)</summary>
+<summary>Редизайн ИСОУ «Виртуальная школа» https://belgorod.vsopen.ru/</summary>
     
 - Формирование команды
 - Планирование
