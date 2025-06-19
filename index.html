@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html>
+<!-- ((СДЕЛАЙ)) — это тудушки, ищи их -->
+
+  <head>
+    <meta charset="utf-8" />
+    <title>Pavel Gertman</title>
+
+    <link rel="icon" type="image/png" href="images/favicon-black-on-white-on-trans.png">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="css/colors.css" />
+    <link rel="stylesheet" href="css/normalize.css" />
+    <link rel="stylesheet" href="css/settings.css" />
+    <link rel="stylesheet" href="css/layout.css" />
+    <link rel="stylesheet" href="css/ids.css" />
+    <link rel="stylesheet" href="css/gallery.css" />
+    <link rel="stylesheet" href="css/navbar.css" />
+
+  </head>
+
+  <body class="ids">
+    <header></header>
+    
+    <main>
+      <div class="ids__wrapper">
+        <div class="section" id="intro">
+          <div class="ids__space S"></div>
+          <div class="ids__text-width">
+            
+            <ids-nav-item id="intro" label="Гертман">
+              <figure><img src="images/gertman.jpg" style="width: 50%;border-radius: 50% 50% 50% 0;"></figure>
+              <h1 class="S">Гертман Павел</h1>
+            </ids-nav-item>
+            
+            
+            <p>Дизайнер, руководитель дизайна в <a href="https://mediaservicellc.ru/">ООО «Медиа Сервис»</a></p>
+            
+            <!-- <ids-navbar></ids-navbar> -->
+
+            <div class="ids__space S"></div> 
+
+            <ids-nav-item id="skills" label="Умения">
+              <h2 class="XS">Умения</h2>
+            </ids-nav-item>
+            
+            <p><mark>Харды</mark> → дизайн взаимодействия, прототипирование, исследования пользователей, малая автоматизация, английский B2. <mark>Софты</mark> → организация творческой работы, найм, мотивация, коммуникация, планирование, прояснение требований, обучение хардам и софтам.</p>
+
+            <ids-nav-item id="tools" label="Инструменты">
+              <h2 class="XS">Инструменты</h2>
+            </ids-nav-item>
+
+            <div class="ids__sequence M gap-S">
+              <div class="ids__sequence-item">
+                <p><code>ПО</code> Figma, Miro, Jira, Confluence, Excel. </p>
+              </div>
+              <div class="ids__sequence-item">                
+                <p><code>AI</code> ChatGPT, DeepSeek, Qwen. </p>
+              </div>
+              <div class="ids__sequence-item">                
+                <p><code>Код</code> JavaScript, Python чуть, SQL чуть-чуть.</p>
+              </div>
+              <div class="ids__sequence-item">                
+                <p><code>Подходы</code> Kanban, Agile, CJM, JTBD, Cynefin.</p>
+              </div>
+            </div>
+
+        <h2 class="XS">Опыт</h2>
+            
+              
+            <p>С 2005 года я работаю дизайнером, с 2012 — дизайн-лидом. Вот что успел поделать:</p>
+
+            <aside>
+              <p><strong>Госсектор:</strong> <a href="https://vs.belregion.ru/"></a>цифровизация школ, портал <a href="https://www.culture.ru/">КУЛЬТУРА.РФ</a> (включая CMS), <a href="https://pro.culture.ru/">PRO.КУЛЬТУРА.РФ</a> (и UI-гайд), таможенный транзит.</p>
+
+              <p><strong>Транспорт:</strong> мобильные приложения (<a href="https://apps.apple.com/ru/app/id1434426876">раз</a>, <a href="https://apps.apple.com/ru/app/id1435905627">два</a>) и админки для парковок, интеллектуальная транспортная система (весогабаритный контроль, камеры нарушений).</p>
+
+              <p><strong>Финтех и e-commerce:</strong> внутренние интерфейсы для банка (конверсионные операции), крупный интернет-магазин и его терминалы в торговых залах.</p>
+
+              <p><strong>Сервисы:</strong> <a href="https://muzaticket.ru/">билетная система</a>, <a href="https://pharm-portal.ru/">фармацевтический справочник</a>, рекомендации одежды по фигуре, мобильная почта, браузер, бухгалтерская отчётность.</p>
+
+              <p><strong>Нестандартные интерфейсы:</strong> голосовое меню мелодий вместо гудка.</p>
+
+
+            </aside>
+
+
+
+
+          </div>
+        </div>
+
+        
+    </main>
+  
+
+    <script src="./lib/photoswipe.umd.min.js"></script>
+    <script src="./lib/photoswipe-lightbox.umd.min.js"></script>
+    <script type="module">
+			   /**
+			    * @param {HTMLDivElement} node
+			    */
+			   const photoSwipeSize = (node) => {
+			     // get image tag inside of node
+			     if (node.hasAttribute('data-pswp-width') && node.hasAttribute('data-pswp-height')) {
+			       return;
+			     }
+			     /** @type {HTMLImageElement | null} */
+			     const img = node.querySelector('img');
+			     if (!img) {
+			       return;
+			     }
+			     let i = new Image();
+			     i.onload = () => {
+			       node.setAttribute('data-pswp-width', i.width.toString());
+			       node.setAttribute('data-pswp-height', i.height.toString());
+			     };
+			     i.src = img.src;
+			   };
+
+			   class IdsGallery extends HTMLElement {
+			     constructor() {
+			       super();
+			       this.classList.add('ids__gallery');
+			     }
+
+			     connectedCallback() {
+			       this.lightbox = new PhotoSwipeLightbox({
+			         gallery: this,
+			         children: 'a',
+			         pswpModule: PhotoSwipe,
+			         padding: {top: 20, bottom: 40, left: 100, right: 100}
+			       });
+
+			       this.lightbox.on('uiRegister', () => {
+			         if (!this.getAttribute('zoom') && this.lightbox?.pswp?.ui?.uiElementsData?.length) {
+			           this.lightbox.pswp.ui.uiElementsData = this.lightbox.pswp.ui.uiElementsData.filter(el => el.name !== 'zoom')
+			         }
+			       });
+
+			       this.lightbox.init();
+
+			       this.querySelectorAll('a').forEach(photoSwipeSize)
+			     }
+
+			     disconnectedCallback() {
+			       this.lightbox.destroy();
+			     }
+			   }
+
+			   window.customElements.define('ids-gallery', IdsGallery);
+    </script>
+
+    <script>
+      let observer = new IntersectionObserver((elements)=>{
+        elements.forEach((el) => {
+          if(el.intersectionRatio > .3) {
+            el.target.classList.remove("sleep");
+          } else {
+            el.target.classList.add("sleep");
+          }
+        })
+      }, {threshold: [0, .5]});
+
+      document.querySelectorAll('.ids__snooze').forEach(el => {
+        observer.observe(el);
+      })
+    </script>
+    <script>  
+
+      class IdsNavbar extends HTMLElement {
+        static #items = [];
+        static #instances = [];
+
+        constructor() {
+          super();
+          this.classList.add('ids__navbar');
+          this.render();
+        }
+
+        static updateItems() {
+          // Сейчас оно будет запускаться слишком часто, нужно будет переделать
+          this.#items = [...document.querySelectorAll('.ids__nav-item')];
+          for (const instance of this.#instances) {
+            instance.render();
+          }
+          this.updateCurrent();
+        }
+
+        static updateCurrent() {
+          let highestTopPositionIndex = 0;
+          for (let i = 0; i < this.#items.length; i++) {
+            let { bottom, top } = this.#items[i].getBoundingClientRect() ?? {
+              top: 0,
+              bottom: 0
+            };
+            let topPosition = (top + bottom) / 2;
+            if (topPosition < 0) {
+              highestTopPositionIndex = i;
+            }
+            if (topPosition >= 0 && topPosition < window.innerHeight / 2) {
+              highestTopPositionIndex = i;
+              break;
+            }
+          }
+          let id = this.#items[highestTopPositionIndex].getAttribute('id');
+          history.replaceState({}, '', `#${id}`);
+          for (const instance of this.#instances) {
+            for (const /** @type {HTMLElement} */ li of instance.querySelectorAll('li:has(a)')) {
+              li.classList.toggle('current', li.firstElementChild.getAttribute('href') === '#' + id);
+            }
+          }
+        }
+
+        connectedCallback() {
+          IdsNavbar.#instances.push(this);
+        }
+
+        disconnectedCallback() {
+          IdsNavbar.#instances.splice(IdsNavbar.#instances.indexOf(this), 1);
+        }
+
+        render() {
+          // Тут стоит делать через манипуляции с dom и не пересоздавать одни и те же записи по 100 раз
+          this.innerHTML = `
+            <ul>
+                ${IdsNavbar.#items.map(item => `
+                    <li>
+                        <a href="#${item.getAttribute('id')}">
+                            ${item.getAttribute('label')}
+                        </a>
+                    </li>
+                `).join('')}
+            </ul>
+          `
+        }
+
+      }
+
+      // TODO можно добавлять/убирать этот лисенер
+      document.addEventListener('scroll', () => IdsNavbar.updateCurrent());
+
+      class IdsNavItem extends HTMLElement {
+        constructor() {
+          super();
+          this.classList.add('ids__nav-item');
+        }
+
+        connectedCallback() {
+          IdsNavbar.updateItems();
+        }
+        disconnectedCallback() {
+          IdsNavbar.updateItems();
+        }
+      }
+
+      window.customElements.define('ids-navbar', IdsNavbar);
+      window.customElements.define('ids-nav-item', IdsNavItem);
+    </script>
+  </body>
+
+</html>
