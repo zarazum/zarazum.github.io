@@ -6,7 +6,7 @@ author: "Гертман Паша"
 description: "Интересы и достижения"
 ---
 
-![[img/gertman.jpeg]
+![[img/gertman.jpeg]]
 
 Руководитель департамента дизайна, 
 [ООО «Медиа Сервис»](http://mediaservicellc.ru/)
