@@ -6,10 +6,10 @@
 
 @font-face {
   font-family: "Root UI";
-  /*font-style: normal;*/
+  font-style: normal;
   font-display: swap;
-  src: url("../fonts/pt-root-ui_vf.woff2") format("woff2"),
-    url("../fonts/pt-root-ui_vf.woff") format("woff");
+  src: url("../fonts/pt-root-ui_vf.woff2") format("woff2-variations"),
+    url("../fonts/pt-root-ui_vf.woff") format("woff-variations");
 }
 
 body {
