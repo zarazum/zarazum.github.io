@@ -16,14 +16,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content="Head of Product Design · Москва, готов к удалёнке и переезду">
     <link rel="preload" href="fonts/InterVariable.woff2" as="font" type="font/woff2" crossorigin>
-    <script>
-      (function () {
-        var theme = localStorage.getItem("ids-theme");
-        if (theme === "dark" || (!theme && matchMedia("(prefers-color-scheme: dark)").matches)) {
-          document.documentElement.classList.add("dark");
-        }
-      })();
-    </script>
     <link rel="stylesheet" href="css/tokens/palette.css" />
     <link rel="stylesheet" href="css/tokens/colors.css" />
     <link rel="stylesheet" href="css/tokens/scales.css" />
@@ -34,17 +26,10 @@
     <link rel="stylesheet" href="css/components/gallery.css" />
     <link rel="stylesheet" href="css/components/navbar.css" />
     <link rel="stylesheet" href="css/components/footnotes.css" />
-    <link rel="stylesheet" href="css/components/theme-toggle.css" />
 
   </head>
 
   <body class="ids">
-    <header>
-      <button class="ids__theme-toggle" role="switch" aria-checked="false" aria-label="Тёмная тема">
-        <span class="ids__theme-toggle__track"><span class="ids__theme-toggle__thumb"></span></span>
-      </button>
-    </header>
-
     <main>
       <div class="ids__wrapper">
         <div class="section" id="intro">
@@ -112,6 +97,5 @@
         
     </main>
     <script src="js/footnotes.js"></script>
-    <script src="js/theme-toggle.js"></script>
   </body>
 </html>
