@@ -5,7 +5,6 @@
 
 <!-- Идейки. «Нефигово было бы» -->
 
-<!-- ((НАУЧИСЬ ДЕЛАТЬ Сноски — кликабельные штучки, чтобы детали к чему-то показывать по клику)) -->
 
   <head>
     <meta charset="utf-8" />
@@ -34,6 +33,7 @@
     <link rel="stylesheet" href="css/components/ids.css" />
     <link rel="stylesheet" href="css/components/gallery.css" />
     <link rel="stylesheet" href="css/components/navbar.css" />
+    <link rel="stylesheet" href="css/components/footnotes.css" />
     <link rel="stylesheet" href="css/components/theme-toggle.css" />
 
   </head>
@@ -58,7 +58,11 @@
             <!-- </ids-nav-item> -->
 
 
-            <p class="S">Head of Product Design · Москва</p>
+            <p class="S"><ids-footnote-link>Head of Product Design</ids-footnote-link> · Москва</p>
+
+            <ids-footnote>
+              <p>Руководитель дизайна продукта</p>
+            </ids-footnote>
             <div class="ids__space S"></div>
 
             
@@ -107,6 +111,7 @@
         </div>
         
     </main>
+    <script src="js/footnotes.js"></script>
     <script src="js/theme-toggle.js"></script>
   </body>
 </html>
