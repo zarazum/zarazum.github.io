@@ -1,0 +1,35 @@
+body {
+  margin: 0;
+  font-synthesis: none;
+}
+
+*,
+*:before,
+*:after {
+  box-sizing: border-box;
+
+  &:focus:not(:focus-visible) {
+    outline: none;
+  }
+
+  &:focus-visible {
+    outline: var(--ids__border-width-m) solid var(--ids__link);
+    outline-offset: 2px;
+  }
+}
+
+button,
+input,
+optgroup,
+select,
+textarea {
+  font-family: inherit;
+  font-size: 100%;
+  line-height: 1.15;
+  margin: 0
+}
+
+img {
+  display: block;
+  width: 100%;
+}
