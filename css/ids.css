@@ -166,6 +166,15 @@
     background: rgba(var(--ids__code-RGB), 0.1);
   }
 
+  & img.ids__portrait {
+    border: 6px solid rgba(var(--ids__code-RGB), 0.4);
+    transition: border-color 0.3s ease;
+
+    &:hover {
+      border-color: rgba(var(--ids__mark-RGB), 1);
+    }
+  }
+
   & figure {
     margin: 0 0 calc(var(--ids__density) * 0.5em) 0;
 
