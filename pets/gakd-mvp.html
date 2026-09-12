@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Качели Достоевского — MVP</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+<style>
+  :root { --ink:#000; --paper:#fff; }
+  * { box-sizing:border-box; }
+  body {
+    margin:0; padding:20px 18px 32px;
+    background:var(--paper); color:var(--ink);
+    font:14px/1.45 Georgia, "Iowan Old Style", "Times New Roman", serif;
+  }
+  header { display:flex; align-items:baseline; gap:12px; margin-bottom:14px; }
+  h1 { font-size:17px; font-weight:normal; margin:0; letter-spacing:.01em; }
+  header span { font-size:12.5px; font-style:italic; }
+  .layout { display:flex; gap:24px; align-items:flex-start; }
+  .stage { flex:1 1 auto; min-width:0; }
+  .side { flex:0 0 280px; width:280px; }
+  #holder { border:1px solid var(--ink); line-height:0; overflow:hidden; }
+  canvas { display:block; touch-action:none; }
+  .panel { border-top:1px solid var(--ink); padding-top:16px;
+           display:grid; grid-template-columns:1fr; gap:14px 24px; }
+  /* узко — панель уезжает под холст и снова раскладывается в несколько колонок */
+  @media (max-width: 899px) {
+    .layout { flex-direction:column; align-items:stretch; }
+    .stage { flex:0 0 auto; }
+    .side { flex:0 0 auto; width:auto; }
+    .panel { grid-template-columns:repeat(auto-fit, minmax(210px,1fr)); }
+  }
+  .ctl { display:grid; grid-template-columns:1fr auto; align-items:baseline; gap:2px 8px; }
+  .ctl output { font-variant-numeric:tabular-nums; white-space:nowrap; }
+  .ctl output s { opacity:.55; }
+  /* родная гирька мелкая и её не ухватить — рисуем свою, 16×16 с отступом под палец */
+  .ctl input[type=range] {
+    grid-column:1 / -1; width:100%; height:22px; margin:3px 0 0;
+    -webkit-appearance:none; appearance:none; background:transparent; cursor:pointer;
+  }
+  .ctl input[type=range]::-webkit-slider-runnable-track { height:2px; background:var(--ink); }
+  .ctl input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance:none; width:16px; height:16px; margin-top:-7px;
+    background:var(--paper); border:1.5px solid var(--ink); border-radius:3px; cursor:grab;
+  }
+  .ctl input[type=range]:active::-webkit-slider-thumb { background:var(--ink); cursor:grabbing; }
+  .ctl input[type=range]::-moz-range-track { height:2px; background:var(--ink); }
+  .ctl input[type=range]::-moz-range-thumb {
+    width:16px; height:16px; box-sizing:border-box;
+    background:var(--paper); border:1.5px solid var(--ink); border-radius:3px; cursor:grab;
+  }
+  .ctl input[type=range]:active::-moz-range-thumb { background:var(--ink); }
+  .lim { font-size:11px; font-style:italic; opacity:.5; }
+  .ctl select { grid-column:1 / -1; width:100%; font:inherit; font-size:13px;
+                padding:3px 4px; border:1px solid var(--ink); background:var(--paper); }
+  .actions { margin-top:16px; display:flex; gap:10px; flex-wrap:wrap; }
+  button { font:inherit; font-size:13px; padding:6px 14px; border:1px solid var(--ink);
+           background:var(--paper); color:var(--ink); cursor:pointer; }
+  button:hover { background:var(--ink); color:var(--paper); }
+  button:focus-visible, input:focus-visible, select:focus-visible {
+    outline:2px solid var(--ink); outline-offset:2px; }
+  #status { font:8px/1.7 ui-monospace, "Cascadia Mono", Consolas, "DejaVu Sans Mono", monospace;
+           white-space:pre; letter-spacing:.02em; margin-top:5px; }
+  #warn { font-size:12.5px; margin-top:10px; }
+  #warn:empty { display:none; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Качели Достоевского</h1>
+  <span>MVP</span>
+</header>
+
+<div class="layout">
+<div class="stage">
+  <div id="holder"></div>
+  <div id="status"></div>
+  <div id="warn"></div>
+</div>
+<div class="side">
+
+<div class="panel">
+  <div class="ctl">
+    <label for="Rb">Rb — радиус углов</label><output id="Rb_v"></output>
+    <input type="range" id="Rb" min="2" max="64" step="1">
+  </div>
+  <div class="ctl">
+    <label for="Ri">Ri — радиус дуг узла</label><output id="Ri_v"></output>
+    <input type="range" id="Ri" min="2" max="64" step="1">
+  </div>
+  <div class="ctl">
+    <label for="count">Прямоугольников</label><output id="count_v"></output>
+    <input type="range" id="count" min="2" max="64" step="1">
+  </div>
+  <div class="ctl">
+    <label for="k">k — трение</label><output id="k_v"></output>
+    <input type="range" id="k" min="0.2" max="6" step="0.05">
+  </div>
+  <div class="ctl">
+    <label for="thresh">Порог энергии</label><output id="thresh_v"></output>
+    <input type="range" id="thresh" min="0" max="0.6" step="0.01">
+  </div>
+  <div class="ctl">
+    <label for="pEsc">p_escape — вылет за дуги</label><output id="pEsc_v"></output>
+    <input type="range" id="pEsc" min="0" max="0.2" step="0.005">
+  </div>
+  <div class="ctl">
+    <label for="ttl">Время жизни точки</label><output id="ttl_v"></output>
+    <input type="range" id="ttl" min="0.5" max="31" step="0.5">
+  </div>
+  <div class="ctl">
+    <label for="reach">Радиус влияния мыши</label><output id="reach_v"></output>
+    <input type="range" id="reach" min="10" max="820" step="10">
+  </div>
+  <div class="ctl">
+    <label for="minBright">Рёбра в покое</label><output id="minBright_v"></output>
+    <input type="range" id="minBright" min="0" max="1" step="0.05">
+  </div>
+  <div class="ctl">
+    <label for="metric">Метрика движения</label>
+    <select id="metric">
+      <option value="speed">ровное ведение</option>
+      <option value="jerk">рывки</option>
+      <option value="jitter">дрожание</option>
+    </select>
+  </div>
+</div>
+
+<div class="actions">
+  <button id="regen">Другая композиция</button>
+  <button id="clear">Стереть облако</button>
+  <button id="save">Сохранить PNG</button>
+</div>
+</div>
+</div>
+
+<script>
+const ui = id => document.getElementById(id);
+
+/* ---------- параметры ---------- */
+const P = {
+  Rb: 8, Ri: 8, count: 8,
+  k: 1.4, thresh: 0.08, pEsc: 0.04,
+  ttl: 2, minBright: 0.4, reach: 260,
+  metric: 'speed'
+};
+const TTL_INF = 30.75;   // выше этой отметки слайдер означает «не умирают»
+const REACH_INF = 810;   // выше — влияние расстояния отключается
+let reachTouched = false;
+
+const GAIN = 3.6;        // сколько энергии даёт метрика
+const E_MAX = 2.5;
+const RATE = 2600;       // точек в секунду при E = 1 над порогом
+const MAX_PER_FRAME = 900;
+
+/* ---------- состояние ---------- */
+let cnv;
+let rects = [], nodes = [];
+let seed = 1;
+let E = 0, prevV = 0, jerkN = 0, depAcc = 0, lastDir = null;
+
+/* кольцевой буфер точек: порядок = порядок рождения, поэтому живые лежат подряд.
+   bt — не буквальное время рождения, а срок со сдвигом ±10% (см. spread в draw) */
+const CAP = 30000;
+const bx = new Float32Array(CAP), by = new Float32Array(CAP), bt = new Float32Array(CAP);
+let tail = 0, count = 0;
+function pushPoint(x, y, birth) {
+  const i = (tail + count) % CAP;
+  bx[i] = x; by[i] = y; bt[i] = birth;
+  if (count < CAP) count++; else tail = (tail + 1) % CAP;
+}
+// сбрасывает и облако, и энергию: рисовать с нуля, но с прежним разгоном — бессмыслица
+function clearPoints() { tail = 0; count = 0; E = 0; depAcc = 0; }
+
+/* ---------- геометрия ---------- */
+// прямые участки рёбер (без углов)
+function straights(r) {
+  const b = P.Rb;
+  return {
+    h: [ {y:r.y,        x1:r.x+b, x2:r.x+r.w-b},
+         {y:r.y+r.h,    x1:r.x+b, x2:r.x+r.w-b} ],
+    v: [ {x:r.x,        y1:r.y+b, y2:r.y+r.h-b},
+         {x:r.x+r.w,    y1:r.y+b, y2:r.y+r.h-b} ]
+  };
+}
+// те же участки, поджатые на Ri с каждого конца: где узел стоять можно
+function insetOK(s, val, isH) {
+  const i = P.Ri;
+  return isH ? (val >= s.x1 + i && val <= s.x2 - i)
+             : (val >= s.y1 + i && val <= s.y2 - i);
+}
+// квадраты, в которых живут угловые дуги
+function cornerZones(r) {
+  const b = P.Rb, p = 1;
+  return [
+    {x0:r.x-p,        y0:r.y-p,        x1:r.x+b+p,      y1:r.y+b+p},
+    {x0:r.x+r.w-b-p,  y0:r.y-p,        x1:r.x+r.w+p,    y1:r.y+b+p},
+    {x0:r.x-p,        y0:r.y+r.h-b-p,  x1:r.x+b+p,      y1:r.y+r.h+p},
+    {x0:r.x+r.w-b-p,  y0:r.y+r.h-b-p,  x1:r.x+r.w+p,    y1:r.y+r.h+p}
+  ];
+}
+function overlaps(a1,a2,b1,b2){ return Math.max(a1,b1) <= Math.min(a2,b2); }
+
+// ни одно ребро B не должно проходить через угловые зоны A
+function cornersClear(A, B) {
+  const zs = cornerZones(A);
+  const hs = [B.y, B.y+B.h], vs = [B.x, B.x+B.w];
+  for (const z of zs) {
+    for (const y of hs) if (y >= z.y0 && y <= z.y1 && overlaps(B.x, B.x+B.w, z.x0, z.x1)) return false;
+    for (const x of vs) if (x >= z.x0 && x <= z.x1 && overlaps(B.y, B.y+B.h, z.y0, z.y1)) return false;
+  }
+  return true;
+}
+
+// пересечения прямых участков A и B; ok=false, если узел попадает в «запретную» зону
+function crossings(A, B) {
+  const out = [], sa = straights(A), sb = straights(B);
+  const pair = (hs, vs) => {
+    for (const h of hs) for (const v of vs) {
+      if (v.x >= h.x1 && v.x <= h.x2 && h.y >= v.y1 && h.y <= v.y2) {
+        out.push({ x:v.x, y:h.y, ok: insetOK(h, v.x, true) && insetOK(v, h.y, false) });
+      }
+    }
+  };
+  pair(sa.h, sb.v); pair(sb.h, sa.v);
+  return out;
+}
+
+// сколько прямоугольников влезло: просто число, либо «⚠️ влезло, зачёркнутое желаемое»
+function updateCountLabel() {
+  const el = ui('count_v');
+  if (!el) return;
+  if (rects.length >= P.count) el.textContent = P.count;
+  else el.innerHTML = '⚠️\u00a0' + rects.length + '\u00a0<s>' + P.count + '</s>';
+}
+function generate() {
+  randomSeed(seed);
+  rects = []; nodes = [];
+  const minS = 2*P.Rb + 2*P.Ri + 4;
+  const maxW = width * 0.92, maxH = height * 0.92;
+  const warn = ui('warn');
+  if (minS > Math.min(maxW, maxH)) {
+    warn.textContent = 'Rb и Ri не помещаются: 2Rb + 2Ri больше холста. Уменьши радиусы.';
+    updateCountLabel();
+    return;
+  }
+  warn.textContent = '';
+  let tries = 0;
+  const minNodeGap = 2.2 * P.Ri;
+  while (rects.length < P.count && tries < 8000) {
+    tries++;
+    const w = random(minS, maxW), h = random(minS, maxH);
+    const c = { x: random(6, width - w - 6), y: random(6, height - h - 6), w, h };
+    let ok = true, fresh = [];
+    for (const r of rects) {
+      if (!cornersClear(r, c) || !cornersClear(c, r)) { ok = false; break; }
+      const xs = crossings(c, r);
+      if (xs.some(p => !p.ok)) { ok = false; break; }
+      fresh.push(...xs);
+    }
+    if (!ok) continue;
+    // второй прямоугольник обязан дать узел: композиция без пересечений бессмысленна
+    if (rects.length > 0 && nodes.length === 0 && fresh.length === 0) continue;
+    // новые узлы не ближе 2.2·Ri к уже принятым и друг к другу;
+    // старые между собой проверять не надо, они уже прошли
+    for (let i = 0; i < fresh.length && ok; i++) {
+      for (let j = 0; j < nodes.length && ok; j++)
+        if (dist(fresh[i].x, fresh[i].y, nodes[j].x, nodes[j].y) < minNodeGap) ok = false;
+      for (let j = i + 1; j < fresh.length && ok; j++)
+        if (dist(fresh[i].x, fresh[i].y, fresh[j].x, fresh[j].y) < minNodeGap) ok = false;
+    }
+    if (!ok) continue;
+    rects.push(c); nodes.push(...fresh);
+  }
+  if (nodes.length === 0) {
+    warn.textContent = 'Ни одного пересечения не нашлось — рисовать нечего. ' +
+      'Жми «другая композиция» или уменьши радиусы.';
+  }
+  updateCountLabel();
+}
+
+/* ---------- узел: вогнутый ромб из четырёх дуг ---------- */
+// граница ромба в полярных координатах: пересечение луча с дугой радиуса Ri,
+// центр дуги в (±Ri, ±Ri). r² − 2r(u·c) + Ri² = 0, берём ближний корень.
+function rEdge(th, Ri) {
+  const d = Ri * (Math.abs(Math.cos(th)) + Math.abs(Math.sin(th)));
+  return d - Math.sqrt(d*d - Ri*Ri);   // Ri на остриях, 0.414·Ri в талии
+}
+// чем ближе узел к курсору, тем чаще в него летят точки
+const wts = [];
+function nodeWeights() {
+  let sum = 0;
+  for (let i = 0; i < nodes.length; i++) {
+    let w = 1;
+    if (P.reach < REACH_INF) {
+      const d = dist(mouseX, mouseY, nodes[i].x, nodes[i].y) / P.reach;
+      w = 1 / (1 + d * d);
+    }
+    wts[i] = w; sum += w;
+  }
+  return sum;
+}
+function pickNode(sum) {
+  let r = random(sum);
+  for (let i = 0; i < nodes.length; i++) { r -= wts[i]; if (r <= 0) return nodes[i]; }
+  return nodes[nodes.length - 1];
+}
+function dropPoint(n, escape, birth) {
+  const Ri = P.Ri;
+  const th = random(TWO_PI);
+  const rm = rEdge(th, Ri);
+  let r;
+  if (escape) {
+    // экспоненциальный хвост наружу от дуги: близко — чаще, далеко — редко
+    r = rm * (1.04 + Math.min(2.2, -0.3 * Math.log(random() + 1e-6)));
+  } else {
+    r = rm * Math.sqrt(random());      // sqrt → равномерно по площади, без отбраковки
+  }
+  pushPoint(n.x + r * Math.cos(th), n.y + r * Math.sin(th), birth);
+}
+
+/* ---------- p5 ---------- */
+// холст занимает всю доступную ширину; высота держит 0.64, но не вылезает из окна
+function stageSize(holder) {
+  const w = Math.max(280, holder.clientWidth);
+  const h = Math.max(240, Math.min(Math.round(w * 0.64), windowHeight - 170));
+  return [w, h];
+}
+function setup() {
+  const holder = ui('holder');
+  const [w, h] = stageSize(holder);
+  cnv = createCanvas(w, h);
+  cnv.parent(holder);
+  setReachDefault();
+  generate();
+}
+// по умолчанию радиус влияния — десятая часть меньшей стороны холста
+function setReachDefault() {
+  if (reachTouched) return;
+  P.reach = Math.max(10, Math.round(Math.min(width, height) / 100) * 10);
+  ui('reach').value = P.reach;
+  ui('reach_v').textContent = fmtReach(P.reach);
+}
+function windowResized() {
+  const holder = ui('holder');
+  const [w, h] = stageSize(holder);
+  resizeCanvas(w, h);
+  setReachDefault();
+  generate(); clearPoints();
+}
+
+// статусная строка: ширины полей фиксированы, цифры не пляшут
+const pad = (v, n) => String(v).padStart(n, ' ');
+function updateStatus() {
+  if (frameCount % 4) return;
+  ui('status').textContent =
+    'E ' + E.toFixed(3) +
+    '   точек ' + pad(count, 5) +
+    '   курсор ' + pad(Math.round(mouseX), 4) + ' ' + pad(Math.round(mouseY), 4);
+}
+
+const mouseInside = () => mouseX >= 0 && mouseX <= width && mouseY >= 0 && mouseY <= height;
+
+function draw() {
+  background(255);
+  const dt = Math.min(deltaTime / 1000, 0.1);
+
+  // характер движения
+  const dx = mouseX - pmouseX, dy = mouseY - pmouseY;
+  const step = Math.hypot(dx, dy);
+  const v = mouseInside() ? step / dt : 0;
+  const a = Math.abs(v - prevV) / dt;
+  let turn = 0;
+  if (step > 1.2) {
+    const dir = Math.atan2(dy, dx);
+    if (lastDir !== null) {
+      let d = dir - lastDir;
+      while (d > Math.PI) d -= TWO_PI; while (d < -Math.PI) d += TWO_PI;
+      turn = Math.abs(d);
+    }
+    lastDir = dir;
+  }
+  prevV = v;
+  jerkN = lerp(jerkN, constrain(a / 9000, 0, 1), 0.15);
+
+  let m = 0;
+  if (P.metric === 'speed')       m = constrain(v / 900, 0, 1.5);
+  else if (P.metric === 'jerk')   m = constrain(a / 9000, 0, 1.5);
+  else                            m = constrain(turn / Math.PI, 0, 1) * constrain(v / 400, 0, 1.5);
+
+  // накопление и трение
+  E += GAIN * m * dt;
+  E *= Math.exp(-P.k * dt);
+  E = constrain(E, 0, E_MAX);
+
+  // забывание: живые точки лежат в кольце по порядку рождения, срезаем с хвоста
+  const now = millis() / 1000;
+  if (P.ttl < TTL_INF) {
+    const deadline = now - P.ttl;
+    while (count > 0 && bt[tail] < deadline) { tail = (tail + 1) % CAP; count--; }
+  }
+
+  // нанесение точек
+  if (E > P.thresh && nodes.length) {
+    depAcc += RATE * (E - P.thresh) * dt;
+    let budget = Math.min(Math.floor(depAcc), MAX_PER_FRAME);
+    depAcc -= budget;
+    const pEff = P.pEsc * (0.08 + 0.92 * jerkN);
+    const wSum = nodeWeights();
+    const spread = Math.min(P.ttl, 30) * 0.1;   // разброс сроков, чтобы пачка не гасла разом
+    while (budget-- > 0) dropPoint(pickNode(wSum), random() < pEff, now + random(-spread, spread));
+  }
+
+  // отрисовка кольца: один путь на все точки вместо 20 тысяч вызовов
+  if (count > 0) {
+    const ctx = drawingContext;
+    ctx.fillStyle = '#000';
+    ctx.beginPath();
+    for (let j = 0; j < count; j++) {
+      const i = (tail + j) % CAP;
+      ctx.rect(bx[i] | 0, by[i] | 0, 1, 1);
+    }
+    ctx.fill();
+  }
+
+  // рёбра: от минимальной яркости до полной по мере накопления энергии
+  const rise = map(E, P.thresh, P.thresh + 0.35, 0, 1, true);
+  const al = 255 * (P.minBright + (1 - P.minBright) * rise);
+  if (al > 1) {
+    noFill(); stroke(0, al); strokeWeight(1);
+    for (const r of rects) rect(r.x, r.y, r.w, r.h, P.Rb);
+  }
+
+  updateStatus();
+}
+
+// чтобы протаскивание по холсту на тачскрине не прокручивало страницу
+function touchMoved() { return false; }
+
+/* ---------- контролы ---------- */
+function bindRange(id, fmt, onChange, limText) {
+  const el = ui(id), out = ui(id + '_v');
+  el.value = P[id];
+  const lab = document.querySelector('label[for="' + id + '"]');
+  if (lab) lab.insertAdjacentHTML('beforeend',
+    ' <span class="lim">' + (limText || el.min + '–' + el.max) + '</span>');
+  const show = () => out.textContent = fmt(+el.value);
+  show();
+  const live = () => { P[id] = +el.value; show(); };
+  const done = () => { P[id] = +el.value; if (onChange) onChange(); };
+  el.addEventListener('input', live);     // клавиатура: стрелки, Home/End
+  el.addEventListener('change', done);
+
+  // Своё перетаскивание. Родное в этой сборке гирьку хватает, но не тянет —
+  // причина не найдена, поэтому положение считаем сами и держим указатель
+  // через setPointerCapture, чтобы он не терялся при выходе за поле.
+  const dec = (String(el.step).split('.')[1] || '').length;
+  const setFrom = x => {
+    const r = el.getBoundingClientRect(), half = 8;   // половина гирьки
+    const t = Math.min(1, Math.max(0, (x - r.left - half) / (r.width - 2 * half)));
+    const mn = +el.min, mx = +el.max, st = +el.step || 1;
+    el.value = (Math.round((mn + t * (mx - mn)) / st) * st).toFixed(dec);
+  };
+  el.addEventListener('pointerdown', e => {
+    e.preventDefault(); el.focus();
+    el.setPointerCapture(e.pointerId);
+    setFrom(e.clientX); live();
+  });
+  el.addEventListener('pointermove', e => {
+    if (!el.hasPointerCapture(e.pointerId)) return;
+    setFrom(e.clientX); live();
+  });
+  el.addEventListener('pointerup', e => {
+    if (el.hasPointerCapture(e.pointerId)) el.releasePointerCapture(e.pointerId);
+    done();
+  });
+}
+const px = v => v + ' px';
+const fmtReach = v => v >= REACH_INF ? 'равномерно' : v + ' px';
+bindRange('Rb', px, () => { generate(); clearPoints(); });
+bindRange('Ri', px, () => { generate(); clearPoints(); });
+bindRange('count', v => v, () => { generate(); clearPoints(); });
+bindRange('k', v => v.toFixed(2));
+bindRange('thresh', v => v.toFixed(2));
+bindRange('pEsc', v => v.toFixed(3));
+bindRange('ttl', v => v >= TTL_INF ? 'не умирают' : v.toFixed(1) + ' с', null, '0.5–∞');
+bindRange('minBright', v => v.toFixed(2));
+bindRange('reach', fmtReach, null, '10–∞');
+['input','pointerdown'].forEach(ev =>
+  ui('reach').addEventListener(ev, () => reachTouched = true));
+
+const metricEl = ui('metric');
+metricEl.value = P.metric;
+metricEl.addEventListener('change', () => P.metric = metricEl.value);
+
+ui('regen').addEventListener('click', () => { seed = Math.floor(Math.random() * 1e6); generate(); clearPoints(); });
+ui('clear').addEventListener('click', clearPoints);
+ui('save').addEventListener('click', () => saveCanvas(cnv, 'gakd-' + seed, 'png'));
+</script>
+</body>
+</html>
