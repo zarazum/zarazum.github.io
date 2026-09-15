@@ -87,6 +87,15 @@
     @media (width < 768px) {
       --columns: 2;
     }
+
+    & > a {
+      display: block;
+      height: 100%;
+    }
+
+    & aside {
+      height: 100%;
+    }
   }
 
   &.XL {

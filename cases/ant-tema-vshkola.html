@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="utf-8" />
+
+    <title>Темизация служебных UI «Виртуальной школы» — Павел Гертман</title>
+
+    <link rel="icon" type="image/png" href="../images/favicon-black-on-white-on-trans.png">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Кейс: темизация служебных UI «Виртуальной школы» на Ant Design">
+    <link rel="preload" href="../fonts/InterVariable.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="../css/tokens/palette.css" />
+    <link rel="stylesheet" href="../css/tokens/colors.css" />
+    <link rel="stylesheet" href="../css/tokens/scales.css" />
+    <link rel="stylesheet" href="../css/settings.css" />
+    <link rel="stylesheet" href="../css/reset.css" />
+    <link rel="stylesheet" href="../css/page-composition/layout.css" />
+    <link rel="stylesheet" href="../css/components/ids.css" />
+    <link rel="stylesheet" href="../css/components/gallery.css" />
+    <link rel="stylesheet" href="../css/components/navbar.css" />
+    <link rel="stylesheet" href="../css/components/footnotes.css" />
+
+  </head>
+
+  <body class="ids">
+    <main>
+      <div class="ids__wrapper">
+        <div class="section" id="case">
+          <div class="ids__space S"></div>
+          <div class="ids__text-width">
+
+            <p><a href="../index.html#design-systems">← Опыт</a></p>
+            <div class="ids__space S"></div>
+
+            <h1 class="S">Темизация служебных UI «Виртуальной школы»</h1>
+
+            <p>Кейс из ГК «Фабрика информационных технологий» → ООО «Медиа Сервис» — разработчика цифровых платформ культуры, образования и городских сервисов, подрядчика федеральных проектов «Культура.РФ» и «PRO.Культура.РФ».</p>
+
+            <div class="ids__space S"></div>
+
+            <h2>Ситуация</h2>
+            <p>«Виртуальная школа» (ВШ) — это региональная система управления образованием: запись в школу и сад, кружки и олимпиады, успеваемость, документооборот; 4 региона, 4000+ учреждений, 200 000+ пользователей; сложная ролевая модель (около 5 основных ролей), большая вариативность между ролями. У продукта уже сделали редизайн интерфейсов для учеников и родителей, но служебные интерфейсы (для учителей и чиновников) оставались в виде самопала на jquery, сделанного вообще без дизайна. Поэтому их было крайне трудоёмко дорабатывать.</p>
+
+            <div class="ids__space S"></div>
+            <h2>Задача</h2>
+            <p>Собрать служебные интерфейсы заново с минимальными затратами, визуально сблизив их с массовыми.</p>
+
+            <div class="ids__space S"></div>
+            <h2>Действия</h2>
+            <p>Предложил подход к реализации: создать кастомную тему Ant Design для ВШ внешне похожую на UI массовых пользователей, валидировать токены через ant.design/theme-editor, чтобы гарантировать реализуемость. Защитил предложенный подход перед бизнесом, разработкой и техподдержкой. Сформировал команду реализации и спланировал этапность работ с детальными оценками.</p>
+
+            <div class="ids__space S"></div>
+            <h2>Результат</h2>
+            <p>Интерфейсы учителей и чиновников целиком покрыты макетами и выпущены в прод. Внедрение шло непрерывной поставкой (принимали и верстали по мере готовности). В обещанные сроки редизайна уложились.</p>
+
+            <div class="ids__space M"></div>
+
+            <p>Далее: <a href="standart-pro-kultura.html">Стандарт проектирования UI «PRO.Культура.РФ»</a></p>
+
+            <div class="ids__space XL"></div>
+          </div>
+        </div>
+      </div>
+    </main>
+    <script src="../js/footnotes.js"></script>
+  </body>
+</html>

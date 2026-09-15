@@ -18,6 +18,16 @@
         color var(--ids__duration-instant) var(--ids__easing-base),
         text-decoration var(--ids__duration-instant) var(--ids__easing-base);
     }
+
+    &[target="_blank"]::after {
+      content: "↗";
+      display: inline-block;
+      margin-left: 0.15em;
+      font-size: 0.75em;
+      text-decoration: none;
+      opacity: 0.6;
+      transform: translateY(-0.05em);
+    }
   }
 
   .ids__promo-link {
