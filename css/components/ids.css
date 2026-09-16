@@ -138,6 +138,13 @@
     }
   }
 
+  & .ids__prose {
+    & h2,
+    & h3 {
+      margin-top: var(--ids__spacer-s);
+    }
+  }
+
   & h3 {
     font-size: 1.5em;
     line-height: calc(var(--ids__density) / 1.1);
