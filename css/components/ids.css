@@ -141,7 +141,10 @@
   & .ids__prose {
     & h2,
     & h3 {
-      margin-top: var(--ids__spacer-s);
+      /* padding, не margin: не должен схлопываться с margin-bottom
+         предыдущего абзаца, иначе отступ выходит меньше, чем на
+         ручных ids-страницах со спейсер-дивом между блоками */
+      padding-top: var(--ids__spacer-s);
     }
   }
 
